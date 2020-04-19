@@ -46,6 +46,16 @@ public class MainActivity extends AppCompatActivity {
         equal = findViewById(R.id.equal);
 
 
+        /**
+         * num0とnum00の関数はまとめたいなー
+         * "文字数が超過しています."←こういったワードは変数にして使いまわしたほうがいい（理由：文章変更の際に漏れがなくなる、翻訳つくるときとかも楽等）
+         * 入力時のチェックは1~9でも使ってるから工夫したほうがいいなー
+         * 1000000000って判断基準でいっぱい使われてるから、クラスの一番最初で　const で定義したほうがいいな。　作ってる最中に桁が1つ減ったら全部かえなあかん。
+         * あと今回の場合やとtmp使わんほうがスムーズかな
+         * 例）if (input + 3 > 1000000000) 
+         * tmpは二つを入れ替えるときに効果的やったはず
+         */
+
         //クリックの挙動.
         num00.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -221,6 +231,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        /**
+         * '+'とかも変数のほうがいいなー　配列でもいいかも　0 == addとかで
+         * 同じこと書きすぎやから、アルゴリズム変えたほうがいいな、
+         * 例えば
+         * 1　何か記号が押されたときに計算する
+         * 2　計算結果が妥当かどうかを判断する
+         * 3　押された記号を登録する
+         * 
+         * 1～3の関数をつくってそれぞれのボタン処理で呼び出す感じ
+         */
         add.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (input != 0) {
