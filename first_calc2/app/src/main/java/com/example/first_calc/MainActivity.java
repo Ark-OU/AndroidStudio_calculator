@@ -6,441 +6,126 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-
+import androidx.appcompat.widget.SearchView;
 
 public class MainActivity extends AppCompatActivity {
-
     //vars.
     double input = 0, Ans = 0;
+    int PreSignText = 4;
+    Boolean flag_error = false;
 
+    final double overflow = 1e9;
+    int[] n_ids = new int[] {R.id.num0, R.id.num1, R.id.num2, R.id.num3, R.id.num4, R.id.num5,
+                        R.id.num6, R.id.num7, R.id.num8, R.id.num9, R.id.num00};
+    int[] s_ids = new int[] {R.id.add, R.id.sub, R.id.mul, R.id.div, R.id.equal};
+    Button[] num,sign;
+
+    //Initialize
+    void Initialize(TextView anstext, TextView signtext){
+        input = 0;
+        Ans = 0;
+        PreSignText = 4;
+        flag_error = false;
+        anstext.setText("0.0");
+        signtext.setText("=");
+    }
+    //error
+    void error(){
+        Toast toast = Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT);
+        toast.show();
+    }
+    //NumFunc
+    double PushButton(int x, TextView anstext, TextView signtext){
+        double tmp = input;
+        tmp *= 10;
+        //x=10の時は"00"のボタンが押されたとき.
+        if(x==10)
+            tmp *= 10;
+        else
+            tmp += x;
+        if (tmp > overflow) {
+            tmp = 0;
+            error();
+            Initialize(anstext, signtext);
+        }else
+            input = tmp;
+        return input;
+    }
+    //SignTextFunc
+    void SignTextAns(int preSignText, TextView anstext, TextView signtext, int x){
+        if(input==0 && preSignText==3){
+            error();
+            flag_error = true;
+        }
+        if (input != 0) {
+            if (preSignText==0) {
+                Ans = Ans + input;
+            } else if (preSignText==1) {
+                Ans = Ans - input;
+            } else if (preSignText==2) {
+                Ans = Ans * input;
+            } else if (preSignText==3) {
+                    Ans = Ans / input;
+            } else {
+                Ans = input;
+            }
+            anstext.setText(String.valueOf(Ans));
+            input = 0;
+        }
+        if (Ans > overflow) {
+            error();
+            Initialize(anstext,signtext);
+        }
+        if(x == 0)signtext.setText("+");
+        else if(x == 1)signtext.setText("-");
+        else if(x == 2)signtext.setText("×");
+        else if(x == 3)signtext.setText("÷");
+        else signtext.setText("=");
+        if(flag_error)Initialize(anstext,signtext);
+    }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final TextView texAns = findViewById(R.id.texAns);
-        final TextView sign = findViewById(R.id.sign);
-
-        //ボタン定義.
-        final Button num00, num0, num1, num2, num3, num4, num5, num6, num7, num8, num9,
-                ac, div, add, sub, mul, equal;
-        num00 = findViewById(R.id.num00);
-        num0 = findViewById(R.id.num0);
-        num1 = findViewById(R.id.num1);
-        num2 = findViewById(R.id.num2);
-        num3 = findViewById(R.id.num3);
-        num4 = findViewById(R.id.num4);
-        num5 = findViewById(R.id.num5);
-        num6 = findViewById(R.id.num6);
-        num7 = findViewById(R.id.num7);
-        num8 = findViewById(R.id.num8);
-        num9 = findViewById(R.id.num9);
-        ac = findViewById(R.id.ac);
-        div = findViewById(R.id.div);
-        add = findViewById(R.id.add);
-        sub = findViewById(R.id.sub);
-        mul = findViewById(R.id.mul);
-        equal = findViewById(R.id.equal);
-
+        //const vars
+        final TextView AnsText = findViewById(R.id.AnsText);
+        final TextView SignText = findViewById(R.id.SignText);
+        //Button settings.
+        num = new Button[11];
+        sign = new Button[5];
+        for(int i=0; i<11; i++)
+            num[i] = findViewById(n_ids[i]);
+        for(int i=0; i<5; i++)
+            sign[i] = findViewById(s_ids[i]);
+        Button ac = findViewById(R.id.ac);
 
         //クリックの挙動.
-        num00.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                double tmp = input;
-                tmp *= 100;
-                if (tmp > 1000000000) {
-                    Toast toast = Toast.makeText(MainActivity.this, "文字数が超過しています.", Toast.LENGTH_SHORT);
-                    toast.show();
-                } else {
-                    input = tmp;
-                    texAns.setText(String.valueOf(input));
+        for(int i=0; i<11; i++){
+            final int x = i;
+            num[i].setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    input = PushButton(x,AnsText,SignText);
+                    AnsText.setText(String.valueOf(input));
                 }
-            }
-        });
-
-        num0.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                double tmp = input;
-                tmp *= 10;
-                if (tmp > 1000000000) {
-                    Toast toast = Toast.makeText(MainActivity.this, "文字数が超過しています.", Toast.LENGTH_SHORT);
-                    toast.show();
-                } else {
-                    input = tmp;
-                    texAns.setText(String.valueOf(input));
+            });
+        }
+        for(int i=0; i<5; i++) {
+            final int x = i;
+            sign[i].setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    SignTextAns(PreSignText, AnsText, SignText, x);
+                    PreSignText = x;
                 }
-            }
-        });
-
-        num1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                double tmp = input;
-                tmp *= 10;
-                tmp += 1;
-                if (tmp > 1000000000) {
-                    Toast toast = Toast.makeText(MainActivity.this, "文字数が超過しています.", Toast.LENGTH_SHORT);
-                    toast.show();
-                } else {
-                    input = tmp;
-                    texAns.setText(String.valueOf(input));
-                }
-            }
-        });
-
-        num2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                double tmp = input;
-                tmp *= 10;
-                tmp += 2;
-                if (tmp > 1000000000) {
-                    Toast toast = Toast.makeText(MainActivity.this, "文字数が超過しています.", Toast.LENGTH_SHORT);
-                    toast.show();
-                } else {
-                    input = tmp;
-                    texAns.setText(String.valueOf(input));
-                }
-            }
-        });
-
-        num3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                double tmp = input;
-                tmp *= 10;
-                tmp += 3;
-                if (tmp > 1000000000) {
-                    Toast toast = Toast.makeText(MainActivity.this, "文字数が超過しています.", Toast.LENGTH_SHORT);
-                    toast.show();
-                } else {
-                    input = tmp;
-                    texAns.setText(String.valueOf(input));
-                }
-            }
-        });
-
-        num4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                double tmp = input;
-                tmp *= 10;
-                tmp += 4;
-                if (tmp > 1000000000) {
-                    Toast toast = Toast.makeText(MainActivity.this, "文字数が超過しています.", Toast.LENGTH_SHORT);
-                    toast.show();
-                } else {
-                    input = tmp;
-                    texAns.setText(String.valueOf(input));
-                }
-            }
-        });
-
-        num5.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                double tmp = input;
-                tmp *= 10;
-                tmp += 5;
-                if (tmp > 1000000000) {
-                    Toast toast = Toast.makeText(MainActivity.this, "文字数が超過しています.", Toast.LENGTH_SHORT);
-                    toast.show();
-                } else {
-                    input = tmp;
-                    texAns.setText(String.valueOf(input));
-                }
-            }
-        });
-
-        num6.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                double tmp = input;
-                tmp *= 10;
-                tmp += 6;
-                if (tmp > 1000000000) {
-                    Toast toast = Toast.makeText(MainActivity.this, "文字数が超過しています.", Toast.LENGTH_SHORT);
-                    toast.show();
-                } else {
-                    input = tmp;
-                    texAns.setText(String.valueOf(input));
-                }
-            }
-        });
-
-        num7.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                double tmp = input;
-                tmp *= 10;
-                tmp += 7;
-                if (tmp > 1000000000) {
-                    Toast toast = Toast.makeText(MainActivity.this, "文字数が超過しています.", Toast.LENGTH_SHORT);
-                    toast.show();
-                } else {
-                    input = tmp;
-                    texAns.setText(String.valueOf(input));
-                }
-            }
-        });
-
-        num8.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                double tmp = input;
-                tmp *= 10;
-                tmp += 8;
-                if (tmp > 1000000000) {
-                    Toast toast = Toast.makeText(MainActivity.this, "文字数が超過しています.", Toast.LENGTH_SHORT);
-                    toast.show();
-                } else {
-                    input = tmp;
-                    texAns.setText(String.valueOf(input));
-                }
-            }
-        });
-
-        num9.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                double tmp = input;
-                tmp *= 10;
-                tmp += 9;
-                if (tmp > 1000000000) {
-                    Toast toast = Toast.makeText(MainActivity.this, "文字数が超過しています.", Toast.LENGTH_SHORT);
-                    toast.show();
-                } else {
-                    input = tmp;
-                    texAns.setText(String.valueOf(input));
-                }
-            }
-        });
-
-        add.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (input != 0) {
-                    if (sign.getText().toString() == "+") {
-                        Ans = Ans + input;
-                        texAns.setText(String.valueOf(Ans));
-                        sign.setText("+");
-                    }
-                    if (sign.getText().toString() == "-") {
-                        Ans = Ans - input;
-                        texAns.setText(String.valueOf(Ans));
-                        sign.setText("+");
-                    } else if (sign.getText().toString() == "×") {
-                        Ans = Ans * input;
-                        texAns.setText(String.valueOf(Ans));
-                        sign.setText("+");
-                    } else if (sign.getText().toString() == "÷") {
-                        if (texAns.getText().toString() != "0") {
-                            Ans = Ans / input;
-                            texAns.setText(String.valueOf(Ans));
-                            sign.setText("+");
-                        } else {
-                            Toast toast = Toast.makeText(MainActivity.this, "定義されていません.ACを押してやり直してください.", Toast.LENGTH_SHORT);
-                            toast.show();
-                        }
-                    } else {
-                        Ans = input;
-                        texAns.setText(String.valueOf(Ans));
-                        sign.setText("+");
-                    }
-                    input = 0;
-                } else {
-                    sign.setText("+");
-                }
-                if (Ans > 1e9) {
-                    Ans = 0;
-                    input = 0;
-                    texAns.setText("0");
-                    sign.setText("");
-                    Toast toast = Toast.makeText(MainActivity.this, "Error: Over Flow.", Toast.LENGTH_SHORT);
-                    toast.show();
-                }
-            }
-        });
-
-        sub.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (input != 0) {
-                    if (sign.getText().toString() == "+") {
-                        Ans = Ans + input;
-                        texAns.setText(String.valueOf(Ans));
-                        sign.setText("-");
-                    }
-                    if (sign.getText().toString() == "-") {
-                        Ans = Ans - input;
-                        texAns.setText(String.valueOf(Ans));
-                        sign.setText("-");
-                    } else if (sign.getText().toString() == "×") {
-                        Ans = Ans * input;
-                        texAns.setText(String.valueOf(Ans));
-                        sign.setText("-");
-                    } else if (sign.getText().toString() == "÷") {
-                        if (texAns.getText().toString() != "0") {
-                            Ans = Ans / input;
-                            texAns.setText(String.valueOf(Ans));
-                            sign.setText("-");
-                        } else {
-                            Toast toast = Toast.makeText(MainActivity.this, "定義されていません", Toast.LENGTH_SHORT);
-                            toast.show();
-                        }
-                    } else {
-                        Ans = input;
-                        texAns.setText(String.valueOf(Ans));
-                        sign.setText("-");
-                    }
-                    input = 0;
-                } else {
-                    sign.setText("-");
-                }
-                if (Ans > 1e9) {
-                    Ans = 0;
-                    input = 0;
-                    texAns.setText("0");
-                    sign.setText("");
-                    Toast toast = Toast.makeText(MainActivity.this, "Error: Over Flow.", Toast.LENGTH_SHORT);
-                    toast.show();
-                }
-            }
-        });
-
-        mul.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (input != 0) {
-                    if (sign.getText().toString() == "+") {
-                        Ans = Ans + input;
-                        texAns.setText(String.valueOf(Ans));
-                        sign.setText("×");
-                    }
-                    if (sign.getText().toString() == "-") {
-                        Ans = Ans - input;
-                        texAns.setText(String.valueOf(Ans));
-                        sign.setText("×");
-                    } else if (sign.getText().toString() == "×") {
-                        Ans = Ans * input;
-                        texAns.setText(String.valueOf(Ans));
-                        sign.setText("×");
-                    } else if (sign.getText().toString() == "÷") {
-                        if (texAns.getText().toString() != "0") {
-                            Ans = Ans / input;
-                            texAns.setText(String.valueOf(Ans));
-                            sign.setText("×");
-                        } else {
-                            Toast toast = Toast.makeText(MainActivity.this, "定義されていません", Toast.LENGTH_SHORT);
-                            toast.show();
-                        }
-                    } else {
-                        Ans = input;
-                        texAns.setText(String.valueOf(Ans));
-                        sign.setText("×");
-                    }
-                    input = 0;
-                } else {
-                    sign.setText("×");
-                }
-                if (Ans > 1e9) {
-                    Ans = 0;
-                    input = 0;
-                    texAns.setText("0");
-                    sign.setText("");
-                    Toast toast = Toast.makeText(MainActivity.this, "Error: Over Flow.", Toast.LENGTH_SHORT);
-                    toast.show();
-                }
-            }
-        });
-
-        div.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (input != 0) {
-                    if (sign.getText().toString() == "+") {
-                        Ans = Ans + input;
-                        texAns.setText(String.valueOf(Ans));
-                        sign.setText("÷");
-                    }
-                    if (sign.getText().toString() == "-") {
-                        Ans = Ans - input;
-                        texAns.setText(String.valueOf(Ans));
-                        sign.setText("÷");
-                    } else if (sign.getText().toString() == "×") {
-                        Ans = Ans * input;
-                        texAns.setText(String.valueOf(Ans));
-                        sign.setText("÷");
-                    } else if (sign.getText().toString() == "÷") {
-                        if (texAns.getText().toString() != "0") {
-                            Ans = Ans / input;
-                            texAns.setText(String.valueOf(Ans));
-                            sign.setText("÷");
-                        } else {
-                            Toast toast = Toast.makeText(MainActivity.this, "定義されていません", Toast.LENGTH_SHORT);
-                            toast.show();
-                        }
-                    } else {
-                        Ans = input;
-                        texAns.setText(String.valueOf(Ans));
-                        sign.setText("÷");
-                    }
-                    input = 0;
-                } else {
-                    sign.setText("÷");
-                }
-                if (Ans > 1e9) {
-                    Ans = 0;
-                    input = 0;
-                    texAns.setText("0");
-                    sign.setText("");
-                    Toast toast = Toast.makeText(MainActivity.this, "Error: Over Flow.", Toast.LENGTH_SHORT);
-                    toast.show();
-                }
-            }
-        });
-
-        equal.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (sign.getText().toString() == "+") {
-                    Ans = Ans + input;
-                    texAns.setText(String.valueOf(Ans));
-                } else if (sign.getText().toString() == "-") {
-                    Ans = Ans - input;
-                    texAns.setText(String.valueOf(Ans));
-                } else if (sign.getText().toString() == "×") {
-                    Ans = Ans * input;
-                    texAns.setText(String.valueOf(Ans));
-                } else if (sign.getText().toString() == "÷") {
-                    if (input == 0) {
-                        Toast toast = Toast.makeText(MainActivity.this, "定義されていません", Toast.LENGTH_SHORT);
-                        toast.show();
-                    }
-                    Ans = Ans / input;
-                    texAns.setText(String.valueOf(Ans));
-                } else {
-                    texAns.setText(String.valueOf(Ans));
-                }
-                if(Ans>1e9){
-                    Ans=0;
-                    input = 0;
-                    texAns.setText("0");
-                    sign.setText("");
-                    Toast toast = Toast.makeText(MainActivity.this, "Error: Over Flow.", Toast.LENGTH_SHORT);
-                    toast.show();
-                }
-                sign.setText("");
-                input = 0;
-            }
-        });
-
+            });
+        }
         ac.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Ans = 0;
-                input = 0;
-                texAns.setText("0");
-                sign.setText("");
+                Initialize(AnsText,SignText);
+                AnsText.setText("0.0");
+                SignText.setText("=");
             }
         });
     }

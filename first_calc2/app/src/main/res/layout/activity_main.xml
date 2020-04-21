@@ -8,7 +8,7 @@
     tools:context=".MainActivity">
 
     <TextView
-        android:id="@+id/sign"
+        android:id="@+id/SignText"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/text_border"
@@ -17,14 +17,15 @@
         android:paddingLeft="20dp"
         android:paddingTop="40dp"
         android:paddingBottom="20dp"
+        android:text="@string/sign"
         android:textSize="36sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="MissingConstraints"
+        tools:ignore="MissingConstraints,RtlHardcoded,RtlSymmetry"
         tools:layout_editor_absoluteY="40dp" />
 
     <TextView
-        android:id="@+id/texAns"
+        android:id="@+id/AnsText"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/text_border"
@@ -33,10 +34,11 @@
         android:paddingTop="40dp"
         android:paddingRight="20dp"
         android:paddingBottom="20dp"
+        android:text="@string/AnsInit"
         android:textSize="36sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="MissingConstraints"
+        tools:ignore="MissingConstraints,RtlHardcoded,RtlSymmetry"
         tools:layout_editor_absoluteY="40dp" />
 
     <TableLayout
@@ -212,7 +214,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="0.1"
                 android:background="@drawable/button_background"
-                android:text="00"
+                android:text="@string/_00"
                 android:textSize="32sp"
                 tools:ignore="ButtonStyle" />
 
